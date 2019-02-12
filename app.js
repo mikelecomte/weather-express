@@ -35,10 +35,10 @@ app.get("/api/weather/current/:location", (req, res) => {
       const owmData = JSON.parse(body);
 
       const output = {
-        city: owmData.name,
+        day: Date(owmData.dt * 1000).toString(),
         weather: owmData.weather[0].main,
         weatherDesc: owmData.weather[0].description,
-        currentTemp: owmData.main.temp,
+        temp: owmData.main.temp,
         humidity: owmData.main.humidity,
         pressure: owmData.main.pressure,
         windSpeed: owmData.wind.speed
@@ -74,7 +74,7 @@ app.get("/api/weather/forecast/:location", (req, res) => {
 
       for (day of owmData.list) {
         output.push({
-          day: new Date(day.dt * 1000),
+          day: new Date(day.dt * 1000).toString(),
           weather: day.weather[0].main,
           weatherDesc: day.weather[0].description,
           temp: day.main.temp,
