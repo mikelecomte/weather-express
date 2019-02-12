@@ -1,9 +1,10 @@
+const dotenv = require("dotenv").config();
 const express = require("express");
 const app = express();
 const request = require("request");
 const HttpStatus = require("http-status-codes");
 
-const owmKey = "7e48a63137c1d244bb76c280ad6f9f1d";
+const owmKey = process.env.OWM_KEY;
 const port = process.env.port || 3000;
 
 app.use(function(req, res, next) {
