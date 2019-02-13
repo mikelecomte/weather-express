@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const request = require("request");
 const HttpStatus = require("http-status-codes");
+const moment = require("moment");
 
 const owmKey = process.env.OWM_KEY;
 const port = process.env.port || 3000;
@@ -35,7 +36,7 @@ app.get("/api/weather/current/:location", (req, res) => {
       const owmData = JSON.parse(body);
 
       const output = {
-        day: Date(owmData.dt * 1000).toString(),
+        day: moment(owmData.dt * 1000).format("MMMM Do YYYY, h:mm:ss a"),
         weather: owmData.weather[0].main,
         weatherDesc: owmData.weather[0].description,
         temp: owmData.main.temp,
@@ -74,7 +75,7 @@ app.get("/api/weather/forecast/:location", (req, res) => {
 
       for (day of owmData.list) {
         output.push({
-          day: new Date(day.dt * 1000).toString(),
+          day: moment(day.dt * 1000).format("MMMM Do YYYY, h:mm:ss a"),
           weather: day.weather[0].main,
           weatherDesc: day.weather[0].description,
           temp: day.main.temp,
