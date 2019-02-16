@@ -1,12 +1,15 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const request = require("request");
 const HttpStatus = require("http-status-codes");
-
 const dataFunctions = require("./dataFunctions.js");
+
 const owmKey = process.env.OWM_KEY;
-const port = process.env.port || 3000;
+const port = process.env.PORT || 5000;
+
+app.use(cors());
 
 app.use(function(req, res, next) {
   console.log("Req URL:", req.url);
