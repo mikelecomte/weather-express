@@ -1,9 +1,7 @@
-const moment = require("moment");
-
 module.exports = {
   mapData: function(owmData) {
     return {
-      day: moment(owmData.dt * 1000).format("MMMM Do YYYY, h:mm:ss a"),
+      day: owmData.dt,
       weather: owmData.weather[0].main,
       weatherDesc: owmData.weather[0].description,
       temp: owmData.main.temp,
