@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 
 app.get("/api/weather/current/:location", (req, res) => {
   request.get(
-    `http://api.openweathermap.org/data/2.5/weather?q=${
+    `http://api.openweathermap.org/data/2.5/weather?id=${
       req.params.location
     }&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
@@ -48,7 +48,7 @@ app.get("/api/weather/current/:location", (req, res) => {
 
 app.get("/api/weather/forecast/:location", (req, res) => {
   request.get(
-    `http://api.openweathermap.org/data/2.5/forecast?q=${
+    `http://api.openweathermap.org/data/2.5/forecast?id=${
       req.params.location
     }&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
