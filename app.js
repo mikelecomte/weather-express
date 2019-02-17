@@ -6,6 +6,7 @@ const app = express();
 const request = require("request");
 const HttpStatus = require("http-status-codes");
 const dataFunctions = require("./dataFunctions.js");
+const cityList = require("./city.list.json");
 
 const owmKey = process.env.OWM_KEY;
 const port = process.env.PORT || 5000;
@@ -73,6 +74,16 @@ app.get("/api/weather/forecast/:location", (req, res) => {
       res.json(output);
     }
   );
+});
+
+app.get("/api/cities/:query", (req, res) => {
+  const search = req.params.query;
+  const refinedList = cityList.filter(
+    cities => cities.name.toUpperCase().indexOf(search.toUpperCase()) > -1
+  );
+
+  // only return first 10 results cause holy crap
+  res.json(refinedList.slice(0, 10));
 });
 
 app.get("/*", (req, res) => {
