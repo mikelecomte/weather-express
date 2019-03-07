@@ -25,23 +25,23 @@ app.get("/api/weather/current/:location", (req, res) => {
       req.params.location
     }&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
-      if (response.statusCode === HttpStatus.NOT_FOUND) {
+      if (response && response.statusCode === HttpStatus.OK) {
+        const owmData = JSON.parse(body);
+
+        const output = dataFunctions.mapData(owmData);
+
+        return res.json(output);
+      }
+
+      if (response && response.statusCode === HttpStatus.NOT_FOUND) {
         return res
           .status(HttpStatus.NOT_FOUND)
           .send(`City not found: ${req.params.location}`);
       }
 
-      if (response.statusCode !== HttpStatus.OK) {
-        return res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send("Something went wrong!");
-      }
-
-      const owmData = JSON.parse(body);
-
-      const output = dataFunctions.mapData(owmData);
-
-      res.json(output);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .send("Something went wrong!");
     }
   );
 });
@@ -52,26 +52,26 @@ app.get("/api/weather/forecast/:location", (req, res) => {
       req.params.location
     }&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
-      if (response.statusCode === HttpStatus.NOT_FOUND) {
+      if (response && response.statusCode === HttpStatus.OK) {
+        const owmData = JSON.parse(body);
+        let output = [];
+
+        for (day of owmData.list) {
+          output.push(dataFunctions.mapData(day));
+        }
+
+        return res.json(output);
+      }
+
+      if (response && response.statusCode === HttpStatus.NOT_FOUND) {
         return res
           .status(HttpStatus.NOT_FOUND)
           .send(`City not found: ${req.params.location}`);
       }
 
-      if (response.statusCode !== HttpStatus.OK) {
-        return res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send("Something went wrong!");
-      }
-
-      const owmData = JSON.parse(body);
-      let output = [];
-
-      for (day of owmData.list) {
-        output.push(dataFunctions.mapData(day));
-      }
-
-      res.json(output);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .send("Something went wrong!");
     }
   );
 });
