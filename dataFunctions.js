@@ -2,6 +2,7 @@ module.exports = {
   mapData: function(owmData) {
     return {
       day: owmData.dt,
+      id: owmData.weather[0].id,
       weather: owmData.weather[0].main,
       weatherDesc: owmData.weather[0].description,
       icon: owmData.weather[0].icon,
