@@ -85,7 +85,7 @@ app.get("/api/cities/:query", (req, res) => {
   );
 
   // only return first 10 results cause holy crap
-  res.json(refinedList.slice(0, 9));
+  res.json(refinedList.slice(0, 10));
 });
 
 app.get("/*", (req, res) => {
