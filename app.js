@@ -8,6 +8,7 @@ const request = require("request");
 const HttpStatus = require("http-status-codes");
 const dataFunctions = require("./dataFunctions.js");
 const cityList = require("./city.list.json");
+const geocoder = require("geocoder");
 
 const owmKey = process.env.OWM_KEY;
 const port = process.env.PORT || 5000;
@@ -86,6 +87,43 @@ app.get("/api/cities/:query", (req, res) => {
 
   // only return first 10 results cause holy crap
   res.json(refinedList.slice(0, 10));
+});
+
+app.get("/api/cities/geo/:lat/:lon", (req, res) => {
+  const lat = req.params.lat;
+  const lon = req.params.lon;
+  var API = { key: "AIzaSyAFErxluaCHeLFuAxexMpD8pEboYDTKSAU" };
+  geocoder.reverseGeocode(
+    lat,
+    lon,
+    function(err, data) {
+      let locality = data.results[0].address_components.filter(r =>
+        r.types.includes("locality")
+      );
+      let country = data.results[0].address_components.filter(r =>
+        r.types.includes("country")
+      );
+
+      const cityIdList = cityList.filter(
+        cities =>
+          cities.name
+            .toUpperCase()
+            .indexOf(locality[0].short_name.toUpperCase()) > -1 &&
+          cities.country
+            .toUpperCase()
+            .indexOf(country[0].short_name.toUpperCase()) > -1
+      );
+
+      let response = {
+        id: cityIdList[0].id,
+        city: cityIdList[0].name,
+        country: cityIdList[0].country
+      };
+
+      res.json(response);
+    },
+    API
+  );
 });
 
 app.get("/*", (req, res) => {
