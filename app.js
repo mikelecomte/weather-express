@@ -11,6 +11,7 @@ const cityList = require("./city.list.json");
 const geocoder = require("geocoder");
 
 const owmKey = process.env.OWM_KEY;
+const geoLocationKey = process.env.GEOLOCATION_KEY;
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -92,7 +93,7 @@ app.get("/api/cities/:query", (req, res) => {
 app.get("/api/cities/geo/:lat/:lon", (req, res) => {
   const lat = req.params.lat;
   const lon = req.params.lon;
-  var API = { key: "AIzaSyAFErxluaCHeLFuAxexMpD8pEboYDTKSAU" };
+
   geocoder.reverseGeocode(
     lat,
     lon,
@@ -122,7 +123,7 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
 
       res.json(response);
     },
-    API
+    { key: geoLocationKey }
   );
 });
 
