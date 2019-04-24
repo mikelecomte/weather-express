@@ -112,7 +112,9 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
             .indexOf(locality[0].short_name.toUpperCase()) > -1 &&
           cities.country
             .toUpperCase()
-            .indexOf(country[0].short_name.toUpperCase()) > -1
+            .indexOf(country[0].short_name.toUpperCase()) > -1 &&
+          Math.floor(Number(cities.coord.lat)) === Math.floor(Number(lat)) &&
+          Math.floor(Number(cities.coord.lon)) === Math.floor(Number(lon))
       );
 
       let response = {
