@@ -8,11 +8,18 @@ const request = require("request");
 const HttpStatus = require("http-status-codes");
 const dataFunctions = require("./dataFunctions.js");
 const cityList = require("./city.list.json");
-const geocoder = require("geocoder");
+const sphereKnn = require("sphere-knn");
 
 const owmKey = process.env.OWM_KEY;
-const geoLocationKey = process.env.GEOLOCATION_KEY;
 const port = process.env.PORT || 5000;
+
+const coordinateArray = [];
+
+for (let i = 0; i < cityList.length; i++) {
+  coordinateArray.push(cityList[i].coord);
+}
+
+const lookup = sphereKnn(coordinateArray);
 
 app.use(cors());
 app.use(compression());
@@ -94,39 +101,21 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
   const lat = req.params.lat;
   const lon = req.params.lon;
 
-  geocoder.reverseGeocode(
-    lat,
-    lon,
-    function(err, data) {
-      let locality = data.results[0].address_components.filter(r =>
-        r.types.includes("locality")
-      );
-      let country = data.results[0].address_components.filter(r =>
-        r.types.includes("country")
-      );
+  const closestCoords = lookup(lat, lon, 1);
 
-      const cityIdList = cityList.filter(
-        cities =>
-          cities.name
-            .toUpperCase()
-            .indexOf(locality[0].short_name.toUpperCase()) > -1 &&
-          cities.country
-            .toUpperCase()
-            .indexOf(country[0].short_name.toUpperCase()) > -1 &&
-          Math.floor(Number(cities.coord.lat)) === Math.floor(Number(lat)) &&
-          Math.floor(Number(cities.coord.lon)) === Math.floor(Number(lon))
-      );
-
-      let response = {
-        id: cityIdList[0].id,
-        city: cityIdList[0].name,
-        country: cityIdList[0].country
-      };
-
-      res.json(response);
-    },
-    { key: geoLocationKey }
+  const closestLocationInfo = cityList.filter(
+    cities =>
+      cities.coord.lat === closestCoords[0].lat &&
+      cities.coord.lon === closestCoords[0].lon
   );
+
+  const response = {
+    id: closestLocationInfo[0].id,
+    city: closestLocationInfo[0].name,
+    country: closestLocationInfo[0].country
+  };
+
+  res.json(response);
 });
 
 app.get("/*", (req, res) => {
