@@ -101,18 +101,18 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
   const lat = req.params.lat;
   const lon = req.params.lon;
 
-  const closestCoords = lookup(lat, lon, 1);
+  const closestCoords = lookup(lat, lon, 1)[0];
 
-  const closestLocationInfo = cityList.filter(
+  const closestLocationInfo = cityList.find(
     cities =>
-      cities.coord.lat === closestCoords[0].lat &&
-      cities.coord.lon === closestCoords[0].lon
+      cities.coord.lat === closestCoords.lat &&
+      cities.coord.lon === closestCoords.lon
   );
 
   const response = {
-    id: closestLocationInfo[0].id,
-    city: closestLocationInfo[0].name,
-    country: closestLocationInfo[0].country
+    id: closestLocationInfo.id,
+    city: closestLocationInfo.name,
+    country: closestLocationInfo.country
   };
 
   res.json(response);
