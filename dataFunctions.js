@@ -1,5 +1,7 @@
+const geoTz = require("geo-tz");
+
 module.exports = {
-  mapData: function(owmData) {
+  mapData: function(owmData, lat, lon) {
     return {
       day: owmData.dt,
       id: owmData.weather[0].id,
@@ -17,7 +19,8 @@ module.exports = {
       snow:
         owmData.snow && owmData.snow["3h"]
           ? Math.round(owmData.snow["3h"])
-          : null
+          : null,
+      timezone: geoTz(lat, lon)
     };
   }
 };

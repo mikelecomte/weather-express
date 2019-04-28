@@ -6,9 +6,10 @@ const cors = require("cors");
 const app = express();
 const request = require("request");
 const HttpStatus = require("http-status-codes");
+const sphereKnn = require("sphere-knn");
+
 const dataFunctions = require("./dataFunctions.js");
 const cityList = require("./city.list.json");
-const sphereKnn = require("sphere-knn");
 
 const owmKey = process.env.OWM_KEY;
 const port = process.env.PORT || 5000;
@@ -39,7 +40,15 @@ app.get("/api/weather/current/:location", (req, res) => {
       if (response && response.statusCode === HttpStatus.OK) {
         const owmData = JSON.parse(body);
 
-        const output = dataFunctions.mapData(owmData);
+        const city = cityList.find(
+          cities => cities.id === Number(req.params.location)
+        );
+
+        const output = dataFunctions.mapData(
+          owmData,
+          city.coord.lat,
+          city.coord.lon
+        );
 
         return res.json(output);
       }
@@ -65,10 +74,17 @@ app.get("/api/weather/forecast/:location", (req, res) => {
     (error, response, body) => {
       if (response && response.statusCode === HttpStatus.OK) {
         const owmData = JSON.parse(body);
+
+        const city = cityList.find(
+          cities => cities.id === Number(req.params.location)
+        );
+
         let output = [];
 
         for (day of owmData.list) {
-          output.push(dataFunctions.mapData(day));
+          output.push(
+            dataFunctions.mapData(day, city.coord.lat, city.coord.lon)
+          );
         }
 
         return res.json(output);
