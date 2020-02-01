@@ -33,9 +33,7 @@ app.use(function(req, res, next) {
 
 app.get("/api/weather/current/:location", (req, res) => {
   request.get(
-    `http://api.openweathermap.org/data/2.5/weather?id=${
-      req.params.location
-    }&units=metric&APPID=${owmKey}`,
+    `http://api.openweathermap.org/data/2.5/weather?id=${req.params.location}&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
       if (response && response.statusCode === HttpStatus.OK) {
         const owmData = JSON.parse(body);
@@ -68,9 +66,7 @@ app.get("/api/weather/current/:location", (req, res) => {
 
 app.get("/api/weather/forecast/:location", (req, res) => {
   request.get(
-    `http://api.openweathermap.org/data/2.5/forecast?id=${
-      req.params.location
-    }&units=metric&APPID=${owmKey}`,
+    `http://api.openweathermap.org/data/2.5/forecast?id=${req.params.location}&units=metric&APPID=${owmKey}`,
     (error, response, body) => {
       if (response && response.statusCode === HttpStatus.OK) {
         const owmData = JSON.parse(body);
@@ -119,19 +115,13 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
 
   const closestCoords = lookup(lat, lon, 1)[0];
 
-  const closestLocationInfo = cityList.find(
+  const closestLocation = cityList.find(
     cities =>
       cities.coord.lat === closestCoords.lat &&
       cities.coord.lon === closestCoords.lon
   );
 
-  const response = {
-    id: closestLocationInfo.id,
-    city: closestLocationInfo.name,
-    country: closestLocationInfo.country
-  };
-
-  res.json(response);
+  res.json(closestLocation);
 });
 
 app.get("/*", (req, res) => {

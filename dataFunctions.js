@@ -20,7 +20,7 @@ module.exports = {
         owmData.snow && owmData.snow["3h"]
           ? Math.round(owmData.snow["3h"])
           : null,
-      timezone: geoTz(lat, lon)
+      timezone: geoTz(lat, lon)[0]
     };
   }
 };
