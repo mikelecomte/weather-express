@@ -101,12 +101,12 @@ app.get("/api/weather/forecast/:location", (req, res) => {
 
 app.get("/api/cities/:query", (req, res) => {
   const search = req.params.query;
+  const limit = req.query.limit;
   const refinedList = cityList.filter(
     cities => cities.name.toUpperCase().indexOf(search.toUpperCase()) > -1
   );
 
-  // only return first 10 results cause holy crap
-  res.json(refinedList.slice(0, 10));
+  res.json(refinedList.slice(0, limit));
 });
 
 app.get("/api/cities/geo/:lat/:lon", (req, res) => {
