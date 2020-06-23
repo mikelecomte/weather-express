@@ -4,7 +4,7 @@ const compression = require("compression");
 const helmet = require("helmet");
 const cors = require("cors");
 const app = express();
-const request = require("request");
+const got = require("got");
 const HttpStatus = require("http-status-codes");
 const sphereKnn = require("sphere-knn");
 
@@ -26,87 +26,87 @@ app.use(cors());
 app.use(compression());
 app.use(helmet());
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   console.log("Req URL:", req.url);
   next();
 });
 
-app.get("/api/weather/current/:location", (req, res) => {
-  request.get(
-    `http://api.openweathermap.org/data/2.5/weather?id=${
-      req.params.location
-    }&units=metric&APPID=${owmKey}`,
-    (error, response, body) => {
-      if (response && response.statusCode === HttpStatus.OK) {
-        const owmData = JSON.parse(body);
+app.get("/api/weather/current/:location", async (req, res) => {
+  try {
+    const response = await got(
+      `http://api.openweathermap.org/data/2.5/weather?id=${req.params.location}&units=metric&APPID=${owmKey}`
+    );
 
-        const city = cityList.find(
-          cities => cities.id === Number(req.params.location)
-        );
+    if (response && response.statusCode === HttpStatus.OK) {
+      const owmData = JSON.parse(response.body);
 
-        const output = dataFunctions.mapData(
-          owmData,
-          city.coord.lat,
-          city.coord.lon
-        );
+      const city = cityList.find(
+        (cities) => cities.id === Number(req.params.location)
+      );
 
-        return res.json(output);
-      }
+      const output = dataFunctions.mapData(
+        owmData,
+        city.coord.lat,
+        city.coord.lon
+      );
 
-      if (response && response.statusCode === HttpStatus.NOT_FOUND) {
-        return res
-          .status(HttpStatus.NOT_FOUND)
-          .send(`City not found: ${req.params.location}`);
-      }
-
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .send("Something went wrong!");
+      return res.json(output);
     }
-  );
+  } catch (error) {
+    console.log(error.response.body);
+
+    if (error.response && error.response.statusCode === HttpStatus.NOT_FOUND) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send(`City not found: ${req.params.location}`);
+    }
+
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("Something went wrong!");
+  }
 });
 
-app.get("/api/weather/forecast/:location", (req, res) => {
-  request.get(
-    `http://api.openweathermap.org/data/2.5/forecast?id=${
-      req.params.location
-    }&units=metric&APPID=${owmKey}`,
-    (error, response, body) => {
-      if (response && response.statusCode === HttpStatus.OK) {
-        const owmData = JSON.parse(body);
+app.get("/api/weather/forecast/:location", async (req, res) => {
+  try {
+    const response = await got(
+      `http://api.openweathermap.org/data/2.5/forecast?id=${req.params.location}&units=metric&APPID=${owmKey}`
+    );
 
-        const city = cityList.find(
-          cities => cities.id === Number(req.params.location)
-        );
+    if (response && response.statusCode === HttpStatus.OK) {
+      const owmData = JSON.parse(response.body);
 
-        let output = [];
+      const city = cityList.find(
+        (cities) => cities.id === Number(req.params.location)
+      );
 
-        for (day of owmData.list) {
-          output.push(
-            dataFunctions.mapData(day, city.coord.lat, city.coord.lon)
-          );
-        }
+      let output = [];
 
-        return res.json(output);
+      for (day of owmData.list) {
+        output.push(dataFunctions.mapData(day, city.coord.lat, city.coord.lon));
       }
 
-      if (response && response.statusCode === HttpStatus.NOT_FOUND) {
-        return res
-          .status(HttpStatus.NOT_FOUND)
-          .send(`City not found: ${req.params.location}`);
-      }
-
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .send("Something went wrong!");
+      return res.json(output);
     }
-  );
+  } catch (error) {
+    console.log(error.response.body);
+
+    if (error.response && error.response.statusCode === HttpStatus.NOT_FOUND) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send(`City not found: ${req.params.location}`);
+    }
+
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("Something went wrong!");
+  }
 });
 
 app.get("/api/cities/:query", (req, res) => {
   const search = req.params.query;
   const refinedList = cityList.filter(
-    cities => cities.name.toUpperCase().indexOf(search.toUpperCase()) > -1
+    (cities) => cities.name.toUpperCase().indexOf(search.toUpperCase()) > -1
   );
 
   // only return first 10 results cause holy crap
@@ -120,7 +120,7 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
   const closestCoords = lookup(lat, lon, 1)[0];
 
   const closestLocationInfo = cityList.find(
-    cities =>
+    (cities) =>
       cities.coord.lat === closestCoords.lat &&
       cities.coord.lon === closestCoords.lon
   );
@@ -128,7 +128,7 @@ app.get("/api/cities/geo/:lat/:lon", (req, res) => {
   const response = {
     id: closestLocationInfo.id,
     city: closestLocationInfo.name,
-    country: closestLocationInfo.country
+    country: closestLocationInfo.country,
   };
 
   res.json(response);
