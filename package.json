@@ -2,7 +2,7 @@
   "name": "nodeservice",
   "version": "1.0.0",
   "engines": {
-    "node": "9.8.0"
+    "node": "12.x"
   },
   "description": "",
   "main": "app.js",
